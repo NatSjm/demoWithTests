@@ -11,4 +11,6 @@ public interface DocumentService {
     Document handlePassport(Integer id);
 
     Document addImage(Integer passportId, Integer imageId);
+
+    void removeById(Integer id);
 }

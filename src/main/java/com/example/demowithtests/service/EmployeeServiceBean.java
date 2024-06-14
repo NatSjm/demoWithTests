@@ -8,6 +8,8 @@ import com.example.demowithtests.service.history.HistoryService;
 import com.example.demowithtests.util.annotations.entity.ActivateCustomAnnotations;
 import com.example.demowithtests.util.annotations.entity.Name;
 import com.example.demowithtests.util.annotations.entity.ToLowerCase;
+import com.example.demowithtests.util.exception.EmailAlreadyExistsException;
+import com.example.demowithtests.util.exception.FieldMissingException;
 import com.example.demowithtests.util.exception.ResourceNotFoundException;
 import com.example.demowithtests.util.exception.ResourceWasDeletedException;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
 
 /**
  * This class implements the EmployeeService interface and provides the business logic for managing employees.
@@ -56,6 +59,15 @@ public class EmployeeServiceBean implements EmployeeService {
      */
     @Override
     public void createAndSave(Employee employee) {
+        String email = employee.getEmail();
+        if (email == null || email.isBlank()) {
+            throw new FieldMissingException("Email is empty!");
+        }
+        boolean exists = employeeRepository.existsEmployeeByEmail(email);
+        if (exists) {
+            throw new EmailAlreadyExistsException("Email already exists!");
+        }
+
         employeeRepository.saveEmployee(employee.getName(), employee.getEmail(), employee.getCountry(), String.valueOf(employee.getGender()));
     }
 
@@ -271,7 +283,7 @@ public class EmployeeServiceBean implements EmployeeService {
     /**
      * Sets the document for the employee with the specified ID.
      *
-     * @param id the ID of the employee
+     * @param id       the ID of the employee
      * @param document the document to be assigned to the employee
      * @return the updated employee with the assigned document
      * @throws EntityNotFoundException if no employee is found with the specified ID
@@ -280,7 +292,7 @@ public class EmployeeServiceBean implements EmployeeService {
     public Employee setDocument(Integer id, Document document) {
         return employeeRepository.findById(id)
                 .map(entity -> {
-            entity.setDocument(document);
+                    entity.setDocument(document);
                     historyService.create("The document was assigned to the person with id: " + id,
                             entity.getDocument());
                     return employeeRepository.save(entity);
@@ -302,7 +314,7 @@ public class EmployeeServiceBean implements EmployeeService {
                     historyService.create("The document was removed from the person with id: " + id,
                             entity.getDocument());
                     entity.setDocument(null);
-            return employeeRepository.save(entity);
-        }).orElseThrow(() -> new EntityNotFoundException("Employee not found with id = " + id));
+                    return employeeRepository.save(entity);
+                }).orElseThrow(() -> new EntityNotFoundException("Employee not found with id = " + id));
     }
 }

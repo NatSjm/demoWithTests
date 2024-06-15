@@ -305,4 +305,14 @@ public class EmployeeServiceBean implements EmployeeService {
             return employeeRepository.save(entity);
         }).orElseThrow(() -> new EntityNotFoundException("Employee not found with id = " + id));
     }
+
+    @Override
+    public List<Employee> findEmployeesByCity(String city) {
+        return employeeRepository.findEmployeesByCity(city);
+    }
+
+    @Override
+    public List<Employee> findEmployeesByStreetAndGender(String street, String gender) {
+        return employeeRepository.findEmployeesByStreetAndGender(street, gender);
+    }
 }

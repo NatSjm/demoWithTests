@@ -1,20 +1,22 @@
-CREATE OR REPLACE FUNCTION check_employees_country()
-    RETURNS TRIGGER
-AS $$
-BEGIN
-    IF NEW.country IS NULL THEN
-        RAISE EXCEPTION 'Country cannot be null';
-    END IF;
-RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+DELIMITER $$
 
 CREATE TRIGGER trigger_user_country_null
-    BEFORE INSERT OR UPDATE ON users
+    BEFORE INSERT ON users
     FOR EACH ROW
-EXECUTE FUNCTION check_employees_country();
+BEGIN
+    IF NEW.country IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Country cannot be null';
+END IF;
+END$$
 
---for tests, but is not good way
---BEGIN;
---ALTER TABLE users DISABLE TRIGGER trigger_user_country_null;
---COMMIT;
+CREATE TRIGGER trigger_user_country_null_update
+    BEFORE UPDATE ON users
+    FOR EACH ROW
+BEGIN
+    IF NEW.country IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Country cannot be null';
+END IF;
+END$$
+
+DELIMITER ;
+

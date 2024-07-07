@@ -1,1 +1,1 @@
-alter table users add if not exists is_deleted boolean;
+ALTER TABLE users ADD COLUMN is_deleted BOOLEAN;

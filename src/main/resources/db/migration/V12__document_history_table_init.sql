@@ -1,9 +1,9 @@
-create table if not exists "history"
+CREATE TABLE IF NOT EXISTS `history`
 (
-    "id"            serial,
-    "description"   varchar(255),
-    "date_and_time" timestamp,
-    "document"      int,
-    constraint "id_pk" primary key ("id"),
-    constraint "document_fk" foreign key ("document") references documents ("id")
-);
+    `id`            INT AUTO_INCREMENT,
+    `description`   VARCHAR(255),
+    `date_and_time` TIMESTAMP,
+    `document`      INT,
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (`document`) REFERENCES `documents`(`id`)
+    );

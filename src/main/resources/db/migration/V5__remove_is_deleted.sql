@@ -1,1 +1,1 @@
-alter table users drop is_deleted;
+ALTER TABLE users DROP COLUMN is_deleted;

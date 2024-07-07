@@ -1,3 +1,3 @@
-alter table users add if not exists country1 varchar;
+ALTER TABLE users ADD COLUMN country1 VARCHAR(255);
 
-alter table users DROP country1;
+ALTER TABLE users DROP COLUMN country1;

@@ -5,7 +5,7 @@ networks:
     name: demo
     driver: bridge
 volumes:
-  demo_postgres_data:
+  demo_mysql_data:
     driver: local
 # Define services
 services:
@@ -19,40 +19,39 @@ services:
     container_name: web-app
     # Forward the exposed port 8080 on the container to port 8080 on the host machine
     ports:
-      - "8089:8089"
+      - "8086:8086"
     networks:
       - backend
     # This service depends on postgres. Start that first.
     depends_on:
       - db
     healthcheck:
-      test: curl --fail http://app:8089/actuator/health
+      test: curl --fail http://app:8086/actuator/health
       interval: 1m
       timeout: 10s
       retries: 5
   # Database Service (Postgres)
   db:
     # Use the Docker Image postgres. This will pull the 12 version.
-    image: postgres:16-alpine
+    image: mysql:8.0
     # Give the container the name postgres-db. You can changes to something else.
-    container_name: postgres-db
+    container_name: mysql-db
     restart: always
     # Set a volume some that database is not lost after shutting down the container.
     # I used the name postgres-data but you can changed it to something else.
     volumes:
-      - demo_postgres_data:/var/lib/postgresql/data
+      - demo_mysql_data:/var/lib/mysql
     networks:
       - backend
     # Maps port 5432 (localhost) to port 5432 on the container. You can change the ports to fix your needs.
     ports:
-      - "5433:5432"
+       - "3306:3306"
     # Setup the username, password, and database name. You can changes these values.
     environment:
-      - "POSTGRES_USER=postgres"
-      - "POSTGRES_PASSWORD=postgres"
-      - "POSTGRES_DB=employee"
+      - "MYSQL_ROOT_PASSWORD=root"
+      - "MYSQL_DATABASE=employee"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      test: [ "CMD-SHELL", "mysqladmin ping -u root -p$${MYSQL_ROOT_PASSWORD}" ]
       interval: 1m
       timeout: 10s
       retries: 5

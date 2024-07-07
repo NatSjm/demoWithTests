@@ -1,23 +1,33 @@
-CREATE OR REPLACE FUNCTION set_gender()
-    RETURNS TRIGGER
-AS
-$$
-BEGIN
-    IF substring(NEW.name from 'Mr.') IS NOT NULL THEN
-        NEW.gender := 'M';
-    END IF;
+DELIMITER $$
 
-    IF substring(NEW.name from 'Mrs.') IS NOT NULL OR
-       substring(NEW.name from 'Ms.') IS NOT NULL OR
-       substring(NEW.name from 'Miss') IS NOT NULL THEN
-        NEW.gender := 'F';
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_set_gender_when_
-    BEFORE INSERT OR UPDATE
-    ON users
+CREATE TRIGGER trigger_set_gender_before_insert
+    BEFORE INSERT ON users
     FOR EACH ROW
-EXECUTE FUNCTION set_gender();
+BEGIN
+    IF LOCATE('Mr.', NEW.name) > 0 THEN
+        SET NEW.gender = 'M';
+END IF;
+
+IF LOCATE('Mrs.', NEW.name) > 0 OR
+       LOCATE('Ms.', NEW.name) > 0 OR
+       LOCATE('Miss', NEW.name) > 0 THEN
+        SET NEW.gender = 'F';
+END IF;
+END$$
+
+CREATE TRIGGER trigger_set_gender_before_update
+    BEFORE UPDATE ON users
+    FOR EACH ROW
+BEGIN
+    IF LOCATE('Mr.', NEW.name) > 0 THEN
+        SET NEW.gender = 'M';
+END IF;
+
+IF LOCATE('Mrs.', NEW.name) > 0 OR
+       LOCATE('Ms.', NEW.name) > 0 OR
+       LOCATE('Miss', NEW.name) > 0 THEN
+        SET NEW.gender = 'F';
+END IF;
+END$$
+
+DELIMITER ;

@@ -1,1 +1,1 @@
-alter table users add if not exists gender varchar;
+ALTER TABLE users ADD COLUMN gender VARCHAR(255);

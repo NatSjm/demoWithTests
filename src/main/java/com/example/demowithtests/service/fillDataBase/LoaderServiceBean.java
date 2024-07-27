@@ -7,6 +7,7 @@ import com.github.javafaker.Faker;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import com.example.demowithtests.domain.Gender;
 
 import java.util.*;
 
@@ -40,12 +41,13 @@ public class LoaderServiceBean implements LoaderService {
         long seed = 1;
 
         Faker faker = new Faker(new Locale("en"), new Random(seed));
-        for (int i = 0; i < 2_000; i++) {
+        for (int i = 0; i < 100_000; i++) {
 
             String name = faker.name().name();
             //String country = faker.country().name();
             String country = i % 30 == 0 ? "Ukraine" : faker.country().name();
             String email = faker.name().name();
+            Gender gender = i % 3 == 0 ? Gender.M : (i % 3 == 1 ? Gender.F : null);
 
             Set<Address> addresses = Set.copyOf(
                     Arrays.asList(
@@ -67,6 +69,7 @@ public class LoaderServiceBean implements LoaderService {
                     .country(country)
                     .email(email.toLowerCase().replaceAll(" ", "") + "@mail.com")
                     .addresses(addresses)
+                    .gender(gender)
                     .build();
 
             employees.add(employee);

@@ -2,6 +2,7 @@ package com.example.demowithtests.service;
 
 import com.example.demowithtests.domain.Document;
 import com.example.demowithtests.domain.Employee;
+import com.example.demowithtests.domain.Gender;
 import com.example.demowithtests.repository.EmployeeRepository;
 import com.example.demowithtests.service.emailSevice.EmailSenderService;
 import com.example.demowithtests.service.history.HistoryService;
@@ -36,12 +37,25 @@ public class EmployeeServiceBean implements EmployeeService {
     private final HistoryService historyService;
 
 
+
+    @Override
+    public List<Employee> findEmployeesByAddressCountry(String country) {
+        return employeeRepository.findEmployeesByAddressCountry(country);
+    }
+
+
+    @Override
+    public List<Employee> filterByGender(Gender gender) {
+        return employeeRepository.findEmployeesByGender(gender);
+    }
+
     /**
      * Creates a new employee.
      *
      * @param employee the Employee object to be created
      * @return the newly created Employee object
      */
+
     @Override
     @ActivateCustomAnnotations({Name.class, ToLowerCase.class})
     // @Transactional(propagation = Propagation.MANDATORY)

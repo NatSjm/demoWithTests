@@ -2,6 +2,7 @@ package com.example.demowithtests.service;
 
 import com.example.demowithtests.domain.Document;
 import com.example.demowithtests.domain.Employee;
+import com.example.demowithtests.domain.Gender;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -68,5 +69,9 @@ public interface EmployeeService {
     Employee setDocument(Integer id, Document document);
 
     Employee removeDocument(Integer id);
+
+    List<Employee> findEmployeesByCity(String city);
+
+    List<Employee> findEmployeesByStreetAndGender(String street, Gender gender);
 
 }

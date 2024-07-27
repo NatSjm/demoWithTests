@@ -2,6 +2,7 @@ package com.example.demowithtests.web;
 
 import com.example.demowithtests.domain.Document;
 import com.example.demowithtests.domain.Employee;
+import com.example.demowithtests.domain.Gender;
 import com.example.demowithtests.dto.DocumentDto;
 import com.example.demowithtests.dto.EmployeeDto;
 import com.example.demowithtests.dto.EmployeeReadDto;
@@ -227,4 +228,19 @@ public class EmployeeController {
         log.debug("removeDocumentFromUser() EmployeeController - end: id = {}", id);
         return employee;
     }
+
+    @GetMapping("/employees/city")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Employee> findEmployeesByCity(@RequestParam("city") String city) {
+        return employeeService.findEmployeesByCity(city);
+    }
+
+    @GetMapping("/employees/street")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Employee> findEmployeesByStreetAndGender(@RequestParam("street") String street, @RequestParam(value = "gender", required = false) Gender gender) {
+        return employeeService.findEmployeesByStreetAndGender(street, gender);
+    }
+
+
+
 }

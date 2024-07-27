@@ -2,6 +2,7 @@ package com.example.demowithtests.web;
 
 import com.example.demowithtests.domain.Document;
 import com.example.demowithtests.domain.Employee;
+import com.example.demowithtests.domain.Gender;
 import com.example.demowithtests.dto.DocumentDto;
 import com.example.demowithtests.dto.EmployeeDto;
 import com.example.demowithtests.dto.EmployeeReadDto;
@@ -154,6 +155,19 @@ public class EmployeeController {
     public Optional<String> getAllUsersSo() {
         return employeeService.findEmails();
     }
+
+    @GetMapping("/users/addressCountry")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Employee> getByAddressCountry(@RequestParam(required = true) String country) {
+        return employeeService.findEmployeesByAddressCountry(country);
+    }
+
+    @GetMapping("/users/gender")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Employee> getByGender(@RequestParam(required = true) Gender gender) {
+        return employeeService.filterByGender(gender);
+    }
+
 
     @GetMapping("/users/countryBy")
     @ResponseStatus(HttpStatus.OK)

@@ -69,4 +69,8 @@ public interface EmployeeService {
 
     Employee removeDocument(Integer id);
 
+    List<Employee> findEmployeesByCity(String city);
+
+    List<Employee> findEmployeesByStreetAndGender(String street, String gender);
+
 }

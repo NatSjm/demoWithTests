@@ -22,6 +22,12 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
         //@EntityGraph(attributePaths = {"addresses"})
     List<Employee> findEmployeesByCountry(String country);
 
+    @Query(value = "select u.* from users u join addresses a on u.id = a.employee_id where a.city = :city", nativeQuery = true)
+    List<Employee> findEmployeesByCity(@Param("city") String city);
+
+    @Query(value = "select u.* from users u join addresses a on u.id = a.employee_id where lower(a.street) like lower(concat('%', :street, '%')) and (:gender is null or u.gender = :gender)", nativeQuery = true)
+    List<Employee> findEmployeesByStreetAndGender(@Param("street") String street, @Param("gender") String gender);
+
     //ToDo write implementation
     @Query(value = "select count(*) as amount from users where country = ?1", nativeQuery = true)
     //sql

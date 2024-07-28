@@ -2,6 +2,7 @@ package com.example.demowithtests.service;
 
 import com.example.demowithtests.domain.Document;
 import com.example.demowithtests.domain.Employee;
+import com.example.demowithtests.domain.Gender;
 import com.example.demowithtests.repository.EmployeeRepository;
 import com.example.demowithtests.service.emailSevice.EmailSenderService;
 import com.example.demowithtests.service.history.HistoryService;
@@ -35,7 +36,15 @@ public class EmployeeServiceBean implements EmployeeService {
     private final EmailSenderService emailSenderService;
     private final HistoryService historyService;
 
+    @Override
+    public List<Employee> findEmployeesByCity(String city) {
+        return employeeRepository.findEmployeesByCity(city);
+    }
 
+    @Override
+    public List<Employee> findEmployeesByStreetAndGender(String street, Gender gender) {
+        return employeeRepository.findEmployeesByStreetAndGender(street, gender);
+    }
     /**
      * Creates a new employee.
      *

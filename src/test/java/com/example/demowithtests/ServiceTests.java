@@ -1,5 +1,6 @@
 package com.example.demowithtests;
 
+import com.example.demowithtests.domain.Address;
 import com.example.demowithtests.domain.Document;
 import com.example.demowithtests.domain.Employee;
 import com.example.demowithtests.domain.Gender;
@@ -18,9 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -209,6 +208,77 @@ public class ServiceTests {
         assertThat(result.size()).isEqualTo(2);
         assertThat(result.get(0).getName()).isEqualTo("John");
         assertThat(result.get(1).getName()).isEqualTo("Smith");
+    }
+
+    @Test
+    public void findEmployeesByCityTest() {
+        Address address1 = Address.builder()
+                .city("London")
+                .country("UK")
+                .build();
+        Address address2 = Address.builder()
+                .city("New York")
+                .country("USA")
+                .build();
+        Employee employee1 = Employee.builder()
+                .name("John")
+                .country("England")
+                .addresses(new HashSet<>(Set.of(address1)))
+                .gender(Gender.M)
+                .build();
+        Employee employee2 = Employee.builder()
+                .name("Jane")
+                .country("USA")
+                .addresses(new HashSet<>(Set.of(address2)))
+                .gender(Gender.F)
+                .build();
+
+        when(employeeRepository.findEmployeesByCity("London")).thenReturn(List.of(employee1));
+        when(employeeRepository.findEmployeesByCity("New York")).thenReturn(List.of(employee2));
+
+        List<Employee> employeesInLondon = service.findEmployeesByCity("London");
+        assertThat(employeesInLondon).hasSize(1);
+        assertThat(employeesInLondon.get(0).getName()).isEqualTo("John");
+
+        List<Employee> employeesInNewYork = service.findEmployeesByCity("New York");
+        assertThat(employeesInNewYork).hasSize(1);
+        assertThat(employeesInNewYork.get(0).getName()).isEqualTo("Jane");
+    }
+
+    @Test
+    public void findEmployeesByStreetAndGenderTest() {
+        Address address1 = Address.builder()
+                .street("Baker Street")
+                .country("UK")
+                .build();
+        Address address2 = Address.builder()
+                .street("Fifth Avenue")
+                .country("USA")
+                .build();
+        Employee employee1 = Employee.builder()
+                .name("John")
+                .country("England")
+                .addresses(new HashSet<>(Set.of(address1)))
+                .gender(Gender.M)
+                .build();
+        Employee employee2 = Employee.builder()
+                .name("Jane")
+                .country("USA")
+                .addresses(new HashSet<>(Set.of(address2)))
+                .gender(Gender.F)
+                .build();
+
+        when(employeeRepository.findEmployeesByStreetAndGender("Baker Street", Gender.M)).thenReturn(List.of(employee1));
+        when(employeeRepository.findEmployeesByStreetAndGender("Fifth Avenue", Gender.F)).thenReturn(List.of(employee2));
+
+        List<Employee> employeesInBakerStreet = service.findEmployeesByStreetAndGender("Baker Street", Gender.M);
+        assertThat(employeesInBakerStreet).hasSize(1);
+        assertThat(employeesInBakerStreet.get(0).getName()).isEqualTo("John");
+
+        List<Employee> employeesInFifthAvenue = service.findEmployeesByStreetAndGender("Fifth Avenue", Gender.F);
+        assertThat(employeesInFifthAvenue).hasSize(1);
+        assertThat(employeesInFifthAvenue.get(0).getName()).isEqualTo("Jane");
+
     }
 }
 

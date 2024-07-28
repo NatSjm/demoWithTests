@@ -1,6 +1,8 @@
 package com.example.demowithtests;
 
+import com.example.demowithtests.domain.Address;
 import com.example.demowithtests.domain.Employee;
+import com.example.demowithtests.domain.Gender;
 import com.example.demowithtests.dto.EmployeeDto;
 import com.example.demowithtests.dto.EmployeeReadDto;
 import com.example.demowithtests.service.EmployeeService;
@@ -31,9 +33,11 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -204,22 +208,34 @@ public class ControllerTests {
     @WithMockUser(roles = "USER")
     public void getUsersPageTest() throws Exception {
 
-        var employee = Employee.builder().id(1).name("John").country("US").build();
-        var employeeTwo = Employee.builder().id(2).name("Jane").country("UK").build();
-        var employeeThree = Employee.builder().id(3).name("Bob").country("US").build();
+        Address address1 = new Address(2L, false, "Vanuatu", "Mellissastad", "42269 Keith Wells");
+        Address address2 = new Address(3L, false, "Uruguay", "New Jodytown", "507 Pamala Mountains");
+        Employee employee1 = new Employee(4, "Phebe Lehner", "Ukraine", "teodoratoy@mail.com", new HashSet<>(Arrays.asList(address1, address2)), null, null);
+        Employee employee2 = new Employee(5, "Phebe Lehner", "Ukraine", "teodoratoy@mail.com", new HashSet<>(Arrays.asList(address1, address2)), null, null);
+        Employee employee3 = new Employee(6, "Phebe Lehner", "Ukraine", "teodoratoy@mail.com", new HashSet<>(Arrays.asList(address1, address2)), null, null);
+        Employee employee4 = new Employee(7, "Phebe Lehner", "Ukraine", "teodoratoy@mail.com", new HashSet<>(Arrays.asList(address1, address2)), null, null);
+        Employee employee5 = new Employee(8, "Phebe Lehner", "Ukraine", "teodoratoy@mail.com", new HashSet<>(Arrays.asList(address1, address2)), null, null);
 
-        List<Employee> list = Arrays.asList(employee, employeeTwo, employeeThree);
-        Page<Employee> employeesPage = new PageImpl<>(list);
+        List<Employee> employees = Arrays.asList(employee1, employee2, employee3, employee4, employee5);
+
         Pageable pageable = PageRequest.of(0, 5);
+        Page<Employee> page = new PageImpl<>(employees, pageable, 2000);
+
+
+        when(service.getAllWithPagination(any(Pageable.class))).thenReturn(page);
 
         EmployeeReadDto dto = new EmployeeReadDto();
         EmployeeReadDto dtoTwo = new EmployeeReadDto();
         EmployeeReadDto dtoThree = new EmployeeReadDto();
+        EmployeeReadDto dtoFour = new EmployeeReadDto();
+        EmployeeReadDto dtoFive = new EmployeeReadDto();
 
-        when(service.getAllWithPagination(eq(pageable))).thenReturn(employeesPage);
-        when(employeeMapper.toEmployeeReadDto(employee)).thenReturn(dto);
-        when(employeeMapper.toEmployeeReadDto(employeeTwo)).thenReturn(dtoTwo);
-        when(employeeMapper.toEmployeeReadDto(employeeThree)).thenReturn(dtoThree);
+        when(employeeMapper.toEmployeeReadDto(employee1)).thenReturn(dto);
+        when(employeeMapper.toEmployeeReadDto(employee2)).thenReturn(dtoTwo);
+        when(employeeMapper.toEmployeeReadDto(employee3)).thenReturn(dtoThree);
+        when(employeeMapper.toEmployeeReadDto(employee4)).thenReturn(dtoFour);
+        when(employeeMapper.toEmployeeReadDto(employee5)).thenReturn(dtoFive);
+
 
         MvcResult result = mockMvc.perform(get("/api/users/pages")
                         .param("page", "0")
@@ -227,16 +243,94 @@ public class ControllerTests {
                 .andExpect(status().isOk())
                 .andReturn();
 
+
         verify(service).getAllWithPagination(eq(pageable));
-        verify(employeeMapper, times(1)).toEmployeeReadDto(employee);
-        verify(employeeMapper, times(1)).toEmployeeReadDto(employeeTwo);
-        verify(employeeMapper, times(1)).toEmployeeReadDto(employeeThree);
+        verify(employeeMapper, times(1)).toEmployeeReadDto(employee1);
+        verify(employeeMapper, times(1)).toEmployeeReadDto(employee2);
+        verify(employeeMapper, times(1)).toEmployeeReadDto(employee3);
 
         String contentType = result.getResponse().getContentType();
         assertNotNull(contentType);
         assertTrue(contentType.contains(MediaType.APPLICATION_JSON_VALUE));
         String responseContent = result.getResponse().getContentAsString();
         assertNotNull(responseContent);
+
+    }
+
+    @Test
+    @DisplayName("GET API -> /api/employees/city")
+    @WithMockUser(roles = "USER")
+    public void findEmployeesByCityTest() throws Exception {
+        Employee employee1 = Employee.builder()
+                .name("John")
+                .country("England")
+                .gender(Gender.M)
+                .build();
+        Employee employee2 = Employee.builder()
+                .name("Jane")
+                .country("USA")
+                .gender(Gender.F)
+                .build();
+
+        List<Employee> employeesInLondon = List.of(employee1);
+        List<Employee> employeesInNewYork = List.of(employee2);
+
+        when(service.findEmployeesByCity("London")).thenReturn(employeesInLondon);
+        when(service.findEmployeesByCity("New York")).thenReturn(employeesInNewYork);
+
+        mockMvc.perform(get("/api/employees/city")
+                        .param("city", "London"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].name", is("John")));
+
+        mockMvc.perform(get("/api/employees/city")
+                        .param("city", "New York"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].name", is("Jane")));
+
+        verify(service, times(1)).findEmployeesByCity("London");
+        verify(service, times(1)).findEmployeesByCity("New York");
+    }
+
+    @Test
+    @DisplayName("GET API -> /api/employees/street")
+    @WithMockUser(roles = "USER")
+    public void findEmployeesByStreetAndGenderTest() throws Exception {
+        Employee employee1 = Employee.builder()
+                .name("John")
+                .country("England")
+                .gender(Gender.M)
+                .build();
+        Employee employee2 = Employee.builder()
+                .name("Jane")
+                .country("USA")
+                .gender(Gender.F)
+                .build();
+
+        List<Employee> employeesInBakerStreet = List.of(employee1);
+        List<Employee> employeesInFifthAvenue = List.of(employee2);
+
+        when(service.findEmployeesByStreetAndGender("Baker Street", Gender.M)).thenReturn(employeesInBakerStreet);
+        when(service.findEmployeesByStreetAndGender("Fifth Avenue", Gender.F)).thenReturn(employeesInFifthAvenue);
+
+        mockMvc.perform(get("/api/employees/street")
+                        .param("street", "Baker Street")
+                        .param("gender", "M"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].name", is("John")));
+
+        mockMvc.perform(get("/api/employees/street")
+                        .param("street", "Fifth Avenue")
+                        .param("gender", "F"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].name", is("Jane")));
+
+        verify(service, times(1)).findEmployeesByStreetAndGender("Baker Street", Gender.M);
+        verify(service, times(1)).findEmployeesByStreetAndGender("Fifth Avenue", Gender.F);
     }
 
 }

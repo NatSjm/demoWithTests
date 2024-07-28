@@ -1,6 +1,7 @@
 package com.example.demowithtests.repository;
 
 import com.example.demowithtests.domain.Employee;
+import com.example.demowithtests.domain.Gender;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +18,13 @@ import java.util.Optional;
 
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
+    @Query(value = "select e from Employee e join e.addresses a  where a.city = :city")
+    @EntityGraph(attributePaths = {"addresses"})
+    List<Employee> findEmployeesByCity(@Param("city") String city);
+
+    @Query("select e from Employee e join e.addresses a where lower(a.street) like lower(concat('%', :street, '%')) and (:gender is null or e.gender = :gender)")
+    @EntityGraph(attributePaths = {"addresses"})
+    List<Employee> findEmployeesByStreetAndGender(@Param("street") String street, @Param("gender") Gender gender);
 
     @Query(value = "select e from Employee e where e.country =?1")
         //@EntityGraph(attributePaths = {"addresses"})

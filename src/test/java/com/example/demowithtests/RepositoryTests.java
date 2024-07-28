@@ -12,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.annotation.Rollback;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -136,6 +137,83 @@ public class RepositoryTests {
         // Then
         Employee found = employeeRepository.findByName(newName);
         assertThat(found.getName()).isEqualTo(newName);
+    }
+
+    @Test
+    @Order(8)
+    @DisplayName("Find employees by city test")
+    public void findEmployeesByCityTest() {
+        Address address1 = Address.builder()
+                .city("London")
+                .country("UK")
+                .build();
+        Address address2 = Address.builder()
+                .city("New York")
+                .country("USA")
+                .build();
+        Employee employee1 = Employee.builder()
+                .name("John")
+                .country("England")
+                .addresses(new HashSet<>(Set.of(address1)))
+                .gender(Gender.M)
+                .build();
+        Employee employee2 = Employee.builder()
+                .name("Jane")
+                .country("USA")
+                .addresses(new HashSet<>(Set.of(address2)))
+                .gender(Gender.F)
+                .build();
+
+        employeeRepository.save(employee1);
+        employeeRepository.save(employee2);
+
+        List<Employee> employeesInLondon = employeeRepository.findEmployeesByCity("London");
+        assertThat(employeesInLondon).hasSize(1);
+        assertThat(employeesInLondon.get(0).getName()).isEqualTo("John");
+
+        List<Employee> employeesInNewYork = employeeRepository.findEmployeesByCity("New York");
+        assertThat(employeesInNewYork).hasSize(1);
+        assertThat(employeesInNewYork.get(0).getName()).isEqualTo("Jane");
+
+        List<Employee> employeesInNonExistingCity = employeeRepository.findEmployeesByCity("NonExistingCity");
+        assertThat(employeesInNonExistingCity).isEmpty();
+    }
+
+    @Test
+    @Order(10)
+    @DisplayName("Find employees by street and gender test")
+    public void findEmployeesByStreetAndGenderTest() {
+        Address address1 = Address.builder()
+                .street("Baker Street")
+                .country("UK")
+                .build();
+        Address address2 = Address.builder()
+                .street("Fifth Avenue")
+                .country("USA")
+                .build();
+        Employee employee1 = Employee.builder()
+                .name("John")
+                .country("England")
+                .addresses(new HashSet<>(Set.of(address1)))
+                .gender(Gender.M)
+                .build();
+        Employee employee2 = Employee.builder()
+                .name("Jane")
+                .country("USA")
+                .addresses(new HashSet<>(Set.of(address2)))
+                .gender(Gender.F)
+                .build();
+
+        employeeRepository.save(employee1);
+        employeeRepository.save(employee2);
+
+        List<Employee> employeesInBakerStreet = employeeRepository.findEmployeesByStreetAndGender("Baker Street", Gender.M);
+        assertThat(employeesInBakerStreet).hasSize(1);
+        assertThat(employeesInBakerStreet.get(0).getName()).isEqualTo("John");
+
+        List<Employee> employeesInFifthAvenue = employeeRepository.findEmployeesByStreetAndGender("Fifth Avenue", Gender.F);
+        assertThat(employeesInFifthAvenue).hasSize(1);
+        assertThat(employeesInFifthAvenue.get(0).getName()).isEqualTo("Jane");
     }
 
     @Test

@@ -36,7 +36,7 @@ public final class Document {
     private Employee employee;
 
     @JsonIgnore
-    @OneToMany(targetEntity = History.class, mappedBy = "document")
+    @OneToMany(targetEntity = History.class, mappedBy = "document", cascade = CascadeType.ALL)
     private List<History> history;
 
     /*@OneToOne(cascade = CascadeType.ALL)

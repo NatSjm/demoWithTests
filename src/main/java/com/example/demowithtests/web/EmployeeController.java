@@ -227,4 +227,10 @@ public class EmployeeController {
         log.debug("removeDocumentFromUser() EmployeeController - end: id = {}", id);
         return employee;
     }
+
+    @DeleteMapping("/documents/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeDocumentById(@PathVariable Integer id) {
+        documentService.removeById(id);
+    }
 }

@@ -2,6 +2,7 @@ package com.example.demowithtests.service.document;
 
 import com.example.demowithtests.domain.Document;
 import com.example.demowithtests.repository.DocumentRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -56,4 +57,13 @@ public class DocumentServiceBean implements DocumentService {
     public Document addImage(Integer passportId, Integer imageId) {
         return null;
     }
-}
+
+    @Override
+    public void removeById(Integer id) {
+        if (documentRepository.existsById(id)) {
+            documentRepository.deleteById(id);
+        } else {
+            throw new EntityNotFoundException("Document not found with id = " + id);
+        }
+    }
+    }

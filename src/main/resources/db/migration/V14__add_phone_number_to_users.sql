@@ -1,0 +1,1 @@
+alter table users add column if not exists phone_number varchar(20);

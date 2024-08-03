@@ -186,11 +186,17 @@
                     </compilerArgs>
                 </configuration>
             </plugin>
-            <!--<plugin>
+            <plugin>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
-                <version>8.4.1</version>
-            </plugin>-->
+                <version>10.11.1</version>
+                <configuration>
+                    <url>jdbc:postgresql://localhost:5433/employee</url>
+                    <user>postgres</user>
+                    <password>123</password>
+                    <cleanDisabled>false</cleanDisabled>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>

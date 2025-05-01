@@ -52,6 +52,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 
     Employee findEmployeeByEmailNotNull();
 
+    boolean existsEmployeeByEmail(String email);
+
     @Query("update Employee set name = ?1 where id = ?2")
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional
